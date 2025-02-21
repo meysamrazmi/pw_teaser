@@ -37,7 +37,7 @@ class TeaserController extends ActionController
     /**
      * @var array
      */
-    protected $settings = [];
+    protected array $settings = [];
 
     /**
      * @var integer
@@ -96,13 +96,14 @@ class TeaserController extends ActionController
      *
      * @return void
      */
-    public function initializeAction()
+    protected function initializeAction(): void
     {
         $this->settings = $this->settingsUtility->renderConfigurationArray($this->settings);
 
         $frameworkSettings = $this->configurationManager->getConfiguration(
             ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK
         );
+        $this->contentObject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
         $viewSettings = $frameworkSettings['view'];
         $presets = $viewSettings['presets'] ?? [];
         unset($viewSettings['presets']);
@@ -117,10 +118,11 @@ class TeaserController extends ActionController
      */
     public function indexAction()
     {
-        $this->currentPageUid = $GLOBALS['TSFE']->id;
+        $this->currentPageUid = $this->contentObject->getTypoScriptFrontendController()->id;
 
         $this->performTemplatePathAndFilename();
         $this->setOrderingAndLimitation();
+        $this->performPluginConfigurations();
         $this->performPluginConfigurations();
 
         switch ($this->settings['source']) {
@@ -132,7 +134,7 @@ class TeaserController extends ActionController
 
             case 'thisChildrenRecursively':
                 $rootPageUids = $this->currentPageUid;
-                $pages = $this->pageRepository->findByPidRecursively(
+                $pages = $this->pageRepository->findChildrenRecursivelyByPidList(
                     $this->currentPageUid,
                     (int)$this->settings['recursionDepthFrom'],
                     (int)$this->settings['recursionDepth']

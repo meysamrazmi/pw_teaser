@@ -18,14 +18,6 @@ if (!defined('TYPO3')) {
     ]
 );
 
-$rootLineFields = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(
-    ',',
-    $GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields'],
-    true
-);
-$rootLineFields[] = 'sorting';
-$GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields'] = implode(',', $rootLineFields);
-
 /** @var \TYPO3\CMS\Core\Imaging\IconRegistry $iconRegistry */
 $iconRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Core\Imaging\IconRegistry');
 $iconRegistry->registerIcon(

@@ -12,6 +12,7 @@ use PwTeaserTeam\PwTeaser\Domain\Model\Page;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
  * Repository for Page model
@@ -79,20 +80,6 @@ class PageRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
 
         $this->addQueryConstraint($this->query->equals('pid', reset($translatedPid)));
         return $this->executeQuery();
-    }
-
-    /**
-     * Returns all objects of this repository which are children of the matched
-     * pid (recursively)
-     *
-     * @param integer $pid the pid to search for recursively
-     * @param integer $recursionDepthFrom Start of recursion depth
-     * @param integer $recursionDepth Depth of recursion
-     * @return array All found pages, will be empty if the result is empty
-     */
-    public function findByPidRecursively($pid, $recursionDepthFrom, $recursionDepth)
-    {
-        return $this->findChildrenRecursivelyByPidList($pid, $recursionDepthFrom, $recursionDepth);
     }
 
     /**
@@ -213,7 +200,7 @@ class PageRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
                 ->setParameter('pid', $pid)
                 ->setParameter('lang', $languageUid)
                 ->setMaxResults(1)
-                ->execute()
+                ->executeQuery()
                 ->fetchAssociative();
             if ($translatedRow) {
                 $translatedPidList[$pid] = $translatedRow['uid'];
@@ -323,8 +310,9 @@ class PageRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
                     $displayedPages[] = $page;
                 }
             } else {
+                $contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
                 /** @var \TYPO3\CMS\Frontend\Page\PageRepository $pageSelect */
-                $pageSelect = $GLOBALS['TSFE']->sys_page;
+                $pageSelect = $contentObjectRenderer->getTypoScriptFrontendController()->sys_page;
                 $pageRowWithOverlays = $pageSelect->getPage($page->getUid());
 
                 if ((boolean)$GLOBALS['TYPO3_CONF_VARS']['FE']['hidePagesIfNotTranslatedByDefault'] === false) {
@@ -356,17 +344,13 @@ class PageRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
      */
     protected function getRecursivePageList($pidlist, $recursionDepthFrom, $recursionDepth)
     {
-        /** @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer $contentObjectRenderer */
-        $contentObjectRenderer = GeneralUtility::makeInstance('TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer');
+        $contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+        $pageRepository = $contentObjectRenderer->getTypoScriptFrontendController()->sys_page;
 
         $pagePids = [];
         $pids = GeneralUtility::intExplode(',', $pidlist, true);
         foreach ($pids as $pid) {
-            $pageList = GeneralUtility::intExplode(
-                ',',
-                $contentObjectRenderer->getTreeList($pid, $recursionDepth, $recursionDepthFrom),
-                true
-            );
+            $pageList = $pageRepository->getDescendantPageIdsRecursive($pid, (int)$recursionDepth, (int)$recursionDepthFrom);
             $pagePids = array_merge($pagePids, $pageList);
             if ($recursionDepthFrom === 0) {
                 array_unshift($pagePids, $pid);

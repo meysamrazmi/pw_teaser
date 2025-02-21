@@ -6,6 +6,8 @@ namespace PwTeaserTeam\PwTeaser\Utility;
  *  |
  *  | (c) 2011-2022 Armin Vieweg <armin@v.ieweg.de>
  */
+
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -40,7 +42,7 @@ class Settings
      */
     public function initializeObject()
     {
-        $this->contentObject = $this->configurationManager->getContentObject();
+        $this->contentObject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
     }
 
     /**
