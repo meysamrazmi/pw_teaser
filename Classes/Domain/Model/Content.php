@@ -13,7 +13,7 @@ use TYPO3\CMS\Extbase\Domain\Model\Category;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
-use PwTeaserTeam\PwTeaser\Domain\Repository\PageRepository;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 
 /**
  * Content model
@@ -341,13 +341,12 @@ class Content extends AbstractEntity
      */
     public function __call($name, $arguments)
     {
-        if (substr(strtolower($name), 0, 3) == 'get' && strlen($name) > 3) {
+        if (str_starts_with(strtolower($name), 'get') && strlen($name) > 3) {
             $attributeName = lcfirst(substr($name, 3));
 
             if (empty($this->contentRow)) {
-                /** @var PageRepository $pageSelect */
-                $pageSelect = $GLOBALS['TSFE']->sys_page;
-                $contentRow = $pageSelect->getRawRecord('tt_content', $this->getUid());
+                $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+                $contentRow = $pageRepository->getRawRecord('tt_content', $this->getUid());
                 foreach ($contentRow as $key => $value) {
                     $this->contentRow[GeneralUtility::underscoredToLowerCamelCase($key)] = $value;
                 }

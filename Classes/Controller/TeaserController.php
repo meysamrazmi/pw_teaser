@@ -118,7 +118,7 @@ class TeaserController extends ActionController
      */
     public function indexAction()
     {
-        $this->currentPageUid = $this->contentObject->getTypoScriptFrontendController()->id;
+        $this->currentPageUid = $this->request->getAttribute('frontend.page.information')->getId();
 
         $this->performTemplatePathAndFilename();
         $this->setOrderingAndLimitation();

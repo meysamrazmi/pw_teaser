@@ -310,10 +310,8 @@ class PageRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
                     $displayedPages[] = $page;
                 }
             } else {
-                $contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
-                /** @var \TYPO3\CMS\Frontend\Page\PageRepository $pageSelect */
-                $pageSelect = $contentObjectRenderer->getTypoScriptFrontendController()->sys_page;
-                $pageRowWithOverlays = $pageSelect->getPage($page->getUid());
+                $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Domain\Repository\PageRepository::class);
+                $pageRowWithOverlays = $pageRepository->getPage($page->getUid());
 
                 if ((boolean)$GLOBALS['TYPO3_CONF_VARS']['FE']['hidePagesIfNotTranslatedByDefault'] === false) {
                     if (!($page->getL18nConfiguration() === Page::L18N_HIDE_IF_NO_TRANSLATION_EXISTS ||
@@ -344,8 +342,7 @@ class PageRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
      */
     protected function getRecursivePageList($pidlist, $recursionDepthFrom, $recursionDepth)
     {
-        $contentObjectRenderer = GeneralUtility::makeInstance(ContentObjectRenderer::class);
-        $pageRepository = $contentObjectRenderer->getTypoScriptFrontendController()->sys_page;
+        $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Domain\Repository\PageRepository::class);
 
         $pagePids = [];
         $pids = GeneralUtility::intExplode(',', $pidlist, true);

@@ -9,6 +9,7 @@ namespace PwTeaserTeam\PwTeaser\Domain\Model;
  *  |     2016 Kai Ratzeburg <kai.ratzeburg@diemedialen.de>
  */
 use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
 
@@ -253,9 +254,8 @@ class Page extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     public function getGet(): array
     {
         if (empty($this->pageRow)) {
-            /** @var \TYPO3\CMS\Frontend\Page\PageRepository $pageSelect */
-            $pageSelect = $GLOBALS['TSFE']->sys_page;
-            $pageRow = $pageSelect->getPage($this->getUid());
+            $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+            $pageRow = $pageRepository->getPage($this->getUid());
             foreach ($pageRow as $key => $value) {
                 $this->pageRow[GeneralUtility::underscoredToLowerCamelCase($key)] = $value;
             }
