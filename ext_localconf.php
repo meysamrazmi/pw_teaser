@@ -11,11 +11,13 @@ if (!defined('TYPO3')) {
 }
 
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
-    'pw_teaser',
+    'PwTeaser',
     'Pi1',
     [
         \PwTeaserTeam\PwTeaser\Controller\TeaserController::class => 'index',
-    ]
+    ],
+    [],
+    \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT,
 );
 
 /** @var \TYPO3\CMS\Core\Imaging\IconRegistry $iconRegistry */
@@ -25,15 +27,3 @@ $iconRegistry->registerIcon(
     'TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider',
     ['source' => 'EXT:pw_teaser/Resources/Public/Icons/Extension_x2.png']
 );
-
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
-    mod.wizards.newContentElement.wizardItems.plugins.elements.pwteaser {
-        iconIdentifier = ext-pwteaser-wizard-icon
-        title = LLL:EXT:pw_teaser/Resources/Private/Language/locallang.xlf:newContentElementWizardTitle
-        description = LLL:EXT:pw_teaser/Resources/Private/Language/locallang.xlf:newContentElementWizardDescription
-        tt_content_defValues {
-            CType = list
-            list_type = pwteaser_pi1
-        }
-    }
-');

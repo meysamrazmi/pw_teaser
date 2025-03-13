@@ -1,17 +1,20 @@
 <?php
 
-\TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
-    'pw_teaser',
+$pluginSignature = \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
+    'PwTeaser',
     'Pi1',
-    'Page Teaser (pw_teaser)'
+    'Page Teaser (pw_teaser)',
 );
 
-$extensionName = \TYPO3\CMS\Core\Utility\GeneralUtility::underscoredToUpperCamelCase('pw_teaser');
-$pluginSignature = strtolower($extensionName) . '_pi1';
-
-$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist'][$pluginSignature] = 'select_key,pages,recursive';
-$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist'][$pluginSignature] = 'pi_flexform';
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPiFlexFormValue(
+    '*',
+    'FILE:EXT:pw_teaser/Configuration/FlexForms/flexform_teaser.xml',
+    $pluginSignature
+);
+
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes(
+    'tt_content',
+    '--div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:plugin, pi_flexform',
     $pluginSignature,
-    'FILE:EXT:' . 'pw_teaser' . '/Configuration/FlexForms/flexform_teaser.xml'
+    'after:palette:headers'
 );
